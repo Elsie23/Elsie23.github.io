@@ -78,7 +78,7 @@
 <link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="javascript," />
 
 
 
@@ -87,20 +87,25 @@
 
 
 
-  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
 
 
 
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="Elsie">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta name="description" content="作用域是指程序源代码中定义变量的区域。 作用域规定了如何查找变量，也就是确定当前执行代码对变量的访问权限。 JavaScript 采用词法作用域(lexical scoping)，也就是静态作用域。 静态作用域与动态作用域因为 JavaScript 采用的是词法作用域，函数的作用域在函数定义的时候就决定了。 而与词法作用域相对的是动态作用域，函数的作用域是在函数调用的时候才决定的。 让我们认真看个">
+<meta name="keywords" content="javascript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="javascript 函数作用域">
+<meta property="og:url" content="http://yoursite.com/2017/08/21/javascript-作用域/index.html">
 <meta property="og:site_name" content="Elsie">
+<meta property="og:description" content="作用域是指程序源代码中定义变量的区域。 作用域规定了如何查找变量，也就是确定当前执行代码对变量的访问权限。 JavaScript 采用词法作用域(lexical scoping)，也就是静态作用域。 静态作用域与动态作用域因为 JavaScript 采用的是词法作用域，函数的作用域在函数定义的时候就决定了。 而与词法作用域相对的是动态作用域，函数的作用域是在函数调用的时候才决定的。 让我们认真看个">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-21T05:53:53.196Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Elsie">
+<meta name="twitter:title" content="javascript 函数作用域">
+<meta name="twitter:description" content="作用域是指程序源代码中定义变量的区域。 作用域规定了如何查找变量，也就是确定当前执行代码对变量的访问权限。 JavaScript 采用词法作用域(lexical scoping)，也就是静态作用域。 静态作用域与动态作用域因为 JavaScript 采用的是词法作用域，函数的作用域在函数定义的时候就决定了。 而与词法作用域相对的是动态作用域，函数的作用域是在函数调用的时候才决定的。 让我们认真看个">
 
 
 
@@ -130,13 +135,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/08/21/javascript-作用域/"/>
 
 
 
 
 
-  <title>Elsie</title>
+  <title>javascript 函数作用域 | Elsie</title>
   
 
 
@@ -155,9 +160,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-   page-home 
- ">
+  <div class="container sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -250,9 +253,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -282,9 +285,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/08/21/javascript-作用域/" itemprop="url">javascript 函数作用域</a></h1>
+          <h1 class="post-title" itemprop="name headline">javascript 函数作用域</h1>
         
 
         <div class="post-meta">
@@ -334,9 +335,7 @@
       
 
       
-        
-          
-            <p>作用域是指程序源代码中定义变量的区域。</p>
+        <p>作用域是指程序源代码中定义变量的区域。</p>
 <p>作用域规定了如何查找变量，也就是确定当前执行代码对变量的访问权限。</p>
 <p>JavaScript 采用词法作用域(lexical scoping)，也就是静态作用域。</p>
 <h3 id="静态作用域与动态作用域"><a href="#静态作用域与动态作用域" class="headerlink" title="静态作用域与动态作用域"></a>静态作用域与动态作用域</h3><p>因为 JavaScript 采用的是词法作用域，函数的作用域在函数定义的时候就决定了。</p>
@@ -362,8 +361,6 @@
 <p>JavaScript 函数的执行用到了作用域链，这个作用域链是在函数定义的时候创建的。嵌套的函数 f() 定义在这个作用域链里，其中的变量 scope 一定是局部变量，不管何时何地执行函数 f()，这种绑定在执行 f() 时依然有效。</p>
 <p>转载自<a href="https://github.com/mqyqingfeng/Blog/issues/3" target="_blank" rel="external">https://github.com/mqyqingfeng/Blog/issues/3</a></p>
 
-          
-        
       
     </div>
     
@@ -378,14 +375,20 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/javascript/" rel="tag"># javascript</a>
+          
+        </div>
+      
+
+      
+      
+      
 
       
 
       
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -395,10 +398,11 @@
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -406,6 +410,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -426,8 +434,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel sidebar-panel-active">
+      <section class="site-overview sidebar-panel">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="/images/avatar.gif"
@@ -480,6 +497,22 @@
 
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#静态作用域与动态作用域"><span class="nav-number">1.</span> <span class="nav-text">静态作用域与动态作用域</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#动态作用域"><span class="nav-number">2.</span> <span class="nav-text">动态作用域</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -596,10 +629,10 @@
   
 
   
-    <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
 <script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
 
-  
+
 
   
 
