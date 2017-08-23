@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.2" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="浏览器," />
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.1.2" />
+
+
+
+
+
+
+<meta name="description" content="浏览器加载和渲染html的顺序 IE下载的顺序是从上到下，渲染的顺序也是从上到下，下载和渲染是同时进行 在渲染到页面的某一部分时，其上面的所有部分都已经下载完成（并不是说所有相关联的元素都已经下载完） 如果遇到语义解释性的标签嵌入文件（js脚本，css样式），那么此时IE的下载过程会启用单独连接进行下载 并且在下载后进行解析，解析过程中，停止页面所有往下元素的下载，阻塞加载 样式表在下载完成后，将">
+<meta name="keywords" content="浏览器">
+<meta property="og:type" content="article">
+<meta property="og:title" content="&#39;浏览器渲染机制&#39;">
+<meta property="og:url" content="http://yoursite.com/2017/08/23/浏览器渲染机制/index.html">
+<meta property="og:site_name" content="Elsie">
+<meta property="og:description" content="浏览器加载和渲染html的顺序 IE下载的顺序是从上到下，渲染的顺序也是从上到下，下载和渲染是同时进行 在渲染到页面的某一部分时，其上面的所有部分都已经下载完成（并不是说所有相关联的元素都已经下载完） 如果遇到语义解释性的标签嵌入文件（js脚本，css样式），那么此时IE的下载过程会启用单独连接进行下载 并且在下载后进行解析，解析过程中，停止页面所有往下元素的下载，阻塞加载 样式表在下载完成后，将">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-08-23T02:04:19.938Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="&#39;浏览器渲染机制&#39;">
+<meta name="twitter:description" content="浏览器加载和渲染html的顺序 IE下载的顺序是从上到下，渲染的顺序也是从上到下，下载和渲染是同时进行 在渲染到页面的某一部分时，其上面的所有部分都已经下载完成（并不是说所有相关联的元素都已经下载完） 如果遇到语义解释性的标签嵌入文件（js脚本，css样式），那么此时IE的下载过程会启用单独连接进行下载 并且在下载后进行解析，解析过程中，停止页面所有往下元素的下载，阻塞加载 样式表在下载完成后，将">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: true,
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/08/23/浏览器渲染机制/"/>
+
+
+
+
+
+  <title>'浏览器渲染机制' | Elsie</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Elsie</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/23/浏览器渲染机制/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Elsie">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Elsie">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">'浏览器渲染机制'</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-23T08:51:18+08:00">
+                2017-08-23
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="浏览器加载和渲染html的顺序"><a href="#浏览器加载和渲染html的顺序" class="headerlink" title="浏览器加载和渲染html的顺序"></a>浏览器加载和渲染html的顺序</h3><ol>
+<li>IE下载的顺序是从上到下，渲染的顺序也是从上到下，下载和渲染是同时进行</li>
+<li>在渲染到页面的某一部分时，其上面的所有部分都已经下载完成（并不是说所有相关联的元素都已经下载完）</li>
+<li>如果遇到语义解释性的标签嵌入文件（js脚本，css样式），那么此时IE的下载过程会启用单独连接进行下载</li>
+<li>并且在下载后进行解析，解析过程中，停止页面所有往下元素的下载，阻塞加载</li>
+<li>样式表在下载完成后，将和以前下载的所有样式表一起进行解析，解析完成后，将对此前所有元素（含以前已经渲染的）重新进行渲染</li>
+<li>JS、CSS中如有重定义，后定义函数将覆盖前定义函数</li>
+</ol>
+<h3 id="JS的加载"><a href="#JS的加载" class="headerlink" title="JS的加载"></a>JS的加载</h3><ol>
+<li>浏览器对于Javascript的运行有两大特性：1）载入后马上执行，2）执行时会阻塞页面后续的内容（包括页面的渲染、其他资源的下载）。于是，如果有多个js文件被引入，那么对于浏览器来说，这些js文件被串行的载入，并依次执行。因为JavaScript可能会操作HMTL文档的DOM树，所以，浏览器一般都不会像并行下载css文件那样并行下载js文件，因此这是js文件的特殊性造成的。所以，如果你的JavaScript想操作后面的DOM元素，基本上来说，浏览器都会报错说对象找不到。因为JavaScript执行时，后面的HTML被阻塞住了，DOM树时还没有后面的DOM节点。所以程序报错了。</li>
+<li>当所有样式表都下载完成以后页面才开始一起解析css文件开始渲染页面</li>
+<li>因为浏览器的加载是从上到下一行一行的加载的，所以如果页面同时定义了两个相同命名的js函数，后面的函数会覆盖前面的函数</li>
+</ol>
+<h3 id="HTML页面的加载和解析流程"><a href="#HTML页面的加载和解析流程" class="headerlink" title="HTML页面的加载和解析流程"></a>HTML页面的加载和解析流程</h3><ol>
+<li>用户输入网址（假设是个html页面，并且第一次访问），浏览器向服务器发出请求，服务器返回html文件</li>
+<li>浏览器开始载入html代码，发现<head>标签内一个<link>标签引用外部的css文件</head></li>
+<li>浏览器又发出css文件的请求，服务器返回这个css文件</li>
+<li>浏览器继续载入html中<body>部分的代码，并且css文件已经拿到手了，可以开始渲染页面了</body></li>
+<li>浏览器在代码中发现一个<img>标签引用了一张图片，向服务器发出请求。此时浏览器不会等到图片下载完，而是继续渲染后面的代码</li>
+<li>服务器返回图片文件，由于图片占用了一定面积，影响后面段落的排布，因此浏览器需要回过头来重新渲染这部分代码</li>
+<li>浏览器发现一个包含一行JavaScript代码的<script>标签，赶快运行它</li>
+<li>javascript脚本执行这条语句，它命令浏览器隐藏代码中的某个<div>。杯具啊，突然就少了这么一个元素，浏览器不得不重新渲染这部分代码</li>
+<li>终于等到</html>的到来，浏览器泪流满面</li>
+<li>等等，还没完，用户点了一下界面中的换肤按钮，JavaScript让浏览器换了一下<link>标签中的css路径</li>
+<li>浏览器召集了在座的各位＜div＞＜span＞＜ul＞＜li＞们，“大伙儿收拾收拾行李，咱得重新来过……”，浏览器向服务器请求了新的CSS文件，重新渲染页面。</li>
+</ol>
+<h3 id="DOMContentLoaded事件"><a href="#DOMContentLoaded事件" class="headerlink" title="DOMContentLoaded事件"></a>DOMContentLoaded事件</h3><p>DOMContentLoaded事件在许多Webkit浏览器以及IE9上都可以使用。<br>DOMContentLoaded事件本身不会等待CSS文件、图片、iframe加载完成。<br>触发时机：加载完页面，解析完所有标签（不包括执行CSS和JS），并如规范中所说的设置interactive和执行每个静态的script标签中的JS，然后触发。而JS的执行，需要等待位于它前面的CSS加载（如果是外联的话）、执行完成，因为JS可能会依赖位于它前面的CSS计算出来的样式。</p>
+<p>现代浏览器会并发的预加载CSS,JS，也就是一开始就并发的请求这些资源，但是，执行CSS和JS的顺序还是按原来的依赖顺序（JS的执行要等待位于其前面的CSS和JS加载、执行完）。先加载完成的资源，如果其依赖还没加载、执行完，就只能等着。</p>
+<p>img是否需要解码、绘图（paint）出来，确实需要等CSS加载、执行完才能知道。也就是说，CSS会阻塞img的展现！那么JS呢？</p>
+<p>在有JS而没有CSS的页面中，img居然能够在收到数据后就立刻开始解码、绘图（paint)，也就是说，JS并没有阻塞img的展现！这跟我们以前理解的JS会阻塞img资源的传统观念不太一样，看来Chrome对img的加载和展现做了新的优化。<br>执行顺序简单归纳为：==立即执行函数 =》domReady  =》 onload==</p>
+<h3 id="js执行时机"><a href="#js执行时机" class="headerlink" title="js执行时机"></a>js执行时机</h3><p>head里的 <script>标签会阻塞后续资源的载入以及整个页面的生成 。所以很多网站把javascript放在网页的最后面，或者动用了window.onload或是docmuemt ready之类事件。<br>实现等待DOM被完全加载后才调用JS文件<br>1) 将所有的JS文件都放在最后面后再进行调用<br>2) 将JS代码放在标签里面<br>Javascript并非完全的按顺序解释执行，而是在解释之前会对Javascript进行一次“预编译”，在预编译的过程中，会把定义式的函数优先执行，也会把所有var变量创建，默认值为undefined，以提高程序的执行效率。当JavaScript引擎解析脚本时，它会在预编译期对所有声明的变量和函数进行处理。</p>
+<ol>
+<li><p>在执行前会进行类似“预编译”的操作：首先会创建一个当前执行环境下的活动对象，并将那些用var申明的变量设置为活动对象的属性，但是此时这些变量的赋值都是undefined，并将那些以function定义的函数也添加为活动对象的属性，而且它们的值正是函数的定义。</p>
+</li>
+<li><p>在解释执行阶段，遇到变量需要解析时，会首先从当前执行环境的活动对象中查找，如果没有找到而且该执行环境的拥有者有prototype属性时则会从prototype链中查找，否则将会按照作用域链查找。遇到var a = …这样的语句时会给相应的变量进行赋值（注意：变量的赋值是在解释执行阶段完成的，如果在这之前使用变量，它的值会是undefined） 所以，就会出现当JavaScript解释器执行下面脚本时不会报错</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">f();  <span class="comment">// 调用函数，正确执行</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>)</span>&#123; </div><div class="line">   alert(<span class="number">1</span>);</div><div class="line">&#125;</div><div class="line">  </div><div class="line">f();<span class="comment">// 调用函数，返回语法错误</span></div><div class="line"><span class="keyword">var</span> f = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">   alert(<span class="number">1</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>上面示例中定义的函数仅作为值赋值给变量f，所以在预编译期，JavaScript解释器只能够为声明变量f进行处理，而对于变量f的值，只能等到执行期时按顺序进行赋值，自然就会出现语法错误，提示找不到对象f。</p>
+<p>JavaScript解释器在执行脚本时，是按块来执行的。通俗地说，就是浏览器在解析HTML文档流时，如果遇到一个<script>标签，则JavaScript解释器会等到这个代码块都加载完后，先对代码块进行预编译，然后再执行。执行完毕后，浏览器会继续解析下面的HTML文档流，同时JavaScript解释器也准备好处理下一个代码块。由于JavaScript是按块执行的，所以如果在一个JavaScript块中调用后面块中声明的变量或函数就会提示语法错误。虽然说，JavaScript是按块执行的，但是不同块都属于同一个全局作用域，也就是说，块之间的变量和函数是可以共享的。</p>
+<p>备注：document.write()会把输出写入到脚本文档所在的位置，浏览器解析完documemt.write()所在文档内容后，继续解析document.write()输出的内容，然后在继续解析HTML文档。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">document.write(&apos;&lt;script type=&quot;text/javascript&quot; src=&quot;test.js&quot;&gt;&lt;//script&gt;&apos;);</div><div class="line">document.write(&apos;&lt;script type=&quot;text/javascript&quot;&gt;&apos;);   </div><div class="line">document.write(&apos;alert(2);&apos;)   </div><div class="line">document.write(&apos;alert(&quot;我是&quot; + tmpStr);&apos;);   </div><div class="line">document.write(&apos;&lt;//script&gt;&apos;);    //]]&gt;</div></pre></td></tr></table></figure>
+<p>IE下，用Document.Write方法引用js文件时，js文件会出现尚未加载就直接调用的情况，因此建议将引用的JS文件单独放在一个script块中。以确保引用的js文件完全加载后，再继续执行后面的Document.Write内容。在js里出现同名函数后，你在web页面里调用改js函数后，总是调用页面中最后一个加载的函数。</p>
+<h3 id="jQuery-DomReardy事件"><a href="#jQuery-DomReardy事件" class="headerlink" title="jQuery DomReardy事件"></a>jQuery DomReardy事件</h3><p>在Jquery里面，我们可以看到两种写法:$(function(){}) 和$(document).ready(function(){})<br>这两个方法的效果都是一样的，都是在dom文档树加载完之后执行一个函数（注意，这里面的文档树加载完不代表全部文件加载完）。<br>而window.onload是在dom文档树加载完和所有文件加载完之后执行一个函数。也就是说$(document).ready要比window.onload先执行。</p>
+<p>那么Jquery里面$(document).ready函数的实现：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">document.ready = function (callback) &#123;</div><div class="line">　　//兼容FF,Google</div><div class="line"> 　if (document.addEventListener) &#123;</div><div class="line">   　　document.addEventListener(&apos;DOMContentLoaded&apos;, function () &#123;</div><div class="line">          document.removeEventListener(&apos;DOMContentLoaded&apos;, arguments.callee, false);</div><div class="line">                callback();</div><div class="line">          &#125;, false)</div><div class="line">       &#125;</div><div class="line">   //兼容IE</div><div class="line">   else if (document.attachEvent) &#123;</div><div class="line">       document.attachEvent(&apos;onreadytstatechange&apos;, function () &#123;</div><div class="line">           if (document.readyState == &quot;complete&quot;) &#123;</div><div class="line">              document.detachEvent(&quot;onreadystatechange&quot;, arguments.callee);</div><div class="line">                     callback();</div><div class="line">              &#125;</div><div class="line">           &#125;)</div><div class="line">       &#125;</div><div class="line">  else if (document.lastChild == document.body) &#123;</div><div class="line">          callback();</div><div class="line">       &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  window.onload = function () &#123;</div><div class="line">      alert(&apos;onload&apos;);</div><div class="line">  &#125;;</div><div class="line">  document.ready(function () &#123;</div><div class="line">      alert(&apos;ready&apos;);</div><div class="line">  &#125;);</div></pre></td></tr></table></figure>
+</script></li></ol>
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/浏览器/" rel="tag"># 浏览器</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/08/21/javascript-作用域/" rel="next" title="javascript 函数作用域">
+                <i class="fa fa-chevron-left"></i> javascript 函数作用域
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/images/avatar.jpg"
+               alt="Elsie" />
+          <p class="site-author-name" itemprop="name">Elsie</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/archives/">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">日志</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/tags/index.html">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#浏览器加载和渲染html的顺序"><span class="nav-number">1.</span> <span class="nav-text">浏览器加载和渲染html的顺序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#JS的加载"><span class="nav-number">2.</span> <span class="nav-text">JS的加载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#HTML页面的加载和解析流程"><span class="nav-number">3.</span> <span class="nav-text">HTML页面的加载和解析流程</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Elsie</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+  <span class="post-meta-divider">|</span>
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.2</div>
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.2"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.2"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.2"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
