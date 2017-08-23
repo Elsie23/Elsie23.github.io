@@ -336,58 +336,24 @@
       
         
           
-            <h3 id="浏览器加载和渲染html的顺序"><a href="#浏览器加载和渲染html的顺序" class="headerlink" title="浏览器加载和渲染html的顺序"></a>浏览器加载和渲染html的顺序</h3><ol>
-<li>IE下载的顺序是从上到下，渲染的顺序也是从上到下，下载和渲染是同时进行</li>
-<li>在渲染到页面的某一部分时，其上面的所有部分都已经下载完成（并不是说所有相关联的元素都已经下载完）</li>
-<li>如果遇到语义解释性的标签嵌入文件（js脚本，css样式），那么此时IE的下载过程会启用单独连接进行下载</li>
-<li>并且在下载后进行解析，解析过程中，停止页面所有往下元素的下载，阻塞加载</li>
-<li>样式表在下载完成后，将和以前下载的所有样式表一起进行解析，解析完成后，将对此前所有元素（含以前已经渲染的）重新进行渲染</li>
-<li>JS、CSS中如有重定义，后定义函数将覆盖前定义函数</li>
-</ol>
-<h3 id="JS的加载"><a href="#JS的加载" class="headerlink" title="JS的加载"></a>JS的加载</h3><ol>
-<li>浏览器对于Javascript的运行有两大特性：1）载入后马上执行，2）执行时会阻塞页面后续的内容（包括页面的渲染、其他资源的下载）。于是，如果有多个js文件被引入，那么对于浏览器来说，这些js文件被串行的载入，并依次执行。因为JavaScript可能会操作HMTL文档的DOM树，所以，浏览器一般都不会像并行下载css文件那样并行下载js文件，因此这是js文件的特殊性造成的。所以，如果你的JavaScript想操作后面的DOM元素，基本上来说，浏览器都会报错说对象找不到。因为JavaScript执行时，后面的HTML被阻塞住了，DOM树时还没有后面的DOM节点。所以程序报错了。</li>
-<li>当所有样式表都下载完成以后页面才开始一起解析css文件开始渲染页面</li>
-<li>因为浏览器的加载是从上到下一行一行的加载的，所以如果页面同时定义了两个相同命名的js函数，后面的函数会覆盖前面的函数</li>
-</ol>
-<h3 id="HTML页面的加载和解析流程"><a href="#HTML页面的加载和解析流程" class="headerlink" title="HTML页面的加载和解析流程"></a>HTML页面的加载和解析流程</h3><ol>
-<li>用户输入网址（假设是个html页面，并且第一次访问），浏览器向服务器发出请求，服务器返回html文件</li>
-<li>浏览器开始载入html代码，发现head标签内一个link标签引用外部的css文件</li>
-<li>浏览器又发出css文件的请求，服务器返回这个css文件</li>
-<li>浏览器继续载入html中body部分的代码，并且css文件已经拿到手了，可以开始渲染页面了</li>
-<li>浏览器在代码中发现一个img标签引用了一张图片，向服务器发出请求。此时浏览器不会等到图片下载完，而是继续渲染后面的代码</li>
-<li>服务器返回图片文件，由于图片占用了一定面积，影响后面段落的排布，因此浏览器需要回过头来重新渲染这部分代码</li>
-<li>浏览器发现一个包含一行JavaScript代码的script标签，赶快运行它</li>
-<li>javascript脚本执行这条语句，它命令浏览器隐藏代码中的某个div。杯具啊，突然就少了这么一个元素，浏览器不得不重新渲染这部分代码</li>
-<li>终于等到html标签的到来，浏览器泪流满面</li>
-<li>等等，还没完，用户点了一下界面中的换肤按钮，JavaScript让浏览器换了一下link标签中的css路径</li>
-<li>浏览器召集了在座的各位＜div＞＜span＞＜ul＞＜li＞们，“大伙儿收拾收拾行李，咱得重新来过……”，浏览器向服务器请求了新的CSS文件，重新渲染页面。</li>
-</ol>
-<h3 id="DOMContentLoaded事件"><a href="#DOMContentLoaded事件" class="headerlink" title="DOMContentLoaded事件"></a>DOMContentLoaded事件</h3><p>DOMContentLoaded事件在许多Webkit浏览器以及IE9上都可以使用。</p>
-<p>DOMContentLoaded事件本身不会等待CSS文件、图片、iframe加载完成。</p>
-<p>触发时机：加载完页面，解析完所有标签（不包括执行CSS和JS），并如规范中所说的设置interactive和执行每个静态的script标签中的JS，然后触发。而JS的执行，需要等待位于它前面的CSS加载（如果是外联的话）、执行完成，因为JS可能会依赖位于它前面的CSS计算出来的样式。</p>
-<p>现代浏览器会并发的预加载CSS,JS，也就是一开始就并发的请求这些资源，但是，执行CSS和JS的顺序还是按原来的依赖顺序（JS的执行要等待位于其前面的CSS和JS加载、执行完）。先加载完成的资源，如果其依赖还没加载、执行完，就只能等着。img是否需要解码、绘图（paint）出来，确实需要等CSS加载、执行完才能知道。也就是说，CSS会阻塞img的展现！那么JS呢？</p>
-<p>在有JS而没有CSS的页面中，img居然能够在收到数据后就立刻开始解码、绘图（paint)，也就是说，JS并没有阻塞img的展现！这跟我们以前理解的JS会阻塞img资源的传统观念不太一样，看来Chrome对img的加载和展现做了新的优化。<br>执行顺序简单归纳为：==立即执行函数 =》domReady  =》 onload==</p>
-<h3 id="js执行时机"><a href="#js执行时机" class="headerlink" title="js执行时机"></a>js执行时机</h3><p>head里的script标签会阻塞后续资源的载入以及整个页面的生成 。所以很多网站把javascript放在网页的最后面，或者动用了window.onload或是docmuemt ready之类事件。</p>
-<p>实现等待DOM被完全加载后才调用JS文件<br>1) 将所有的JS文件都放在最后面后再进行调用<br>2) 将JS代码放在标签里面</p>
-<p>Javascript并非完全的按顺序解释执行，而是在解释之前会对Javascript进行一次“预编译”，在预编译的过程中，会把定义式的函数优先执行，也会把所有var变量创建，默认值为undefined，以提高程序的执行效率。当JavaScript引擎解析脚本时，它会在预编译期对所有声明的变量和函数进行处理。</p>
-<ol>
-<li><p>在执行前会进行类似“预编译”的操作：首先会创建一个当前执行环境下的活动对象，并将那些用var申明的变量设置为活动对象的属性，但是此时这些变量的赋值都是undefined，并将那些以function定义的函数也添加为活动对象的属性，而且它们的值正是函数的定义。</p>
-</li>
-<li><p>在解释执行阶段，遇到变量需要解析时，会首先从当前执行环境的活动对象中查找，如果没有找到而且该执行环境的拥有者有prototype属性时则会从prototype链中查找，否则将会按照作用域链查找。遇到var a = …这样的语句时会给相应的变量进行赋值（注意：变量的赋值是在解释执行阶段完成的，如果在这之前使用变量，它的值会是undefined） 所以，就会出现当JavaScript解释器执行下面脚本时不会报错</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">f();  <span class="comment">// 调用函数，正确执行</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>)</span>&#123; </div><div class="line">   alert(<span class="number">1</span>);</div><div class="line">&#125;</div><div class="line">  </div><div class="line">f();<span class="comment">// 调用函数，返回语法错误</span></div><div class="line"><span class="keyword">var</span> f = <span class="function"><span class="keyword">function</span>(<span class="params"></span>)</span>&#123;</div><div class="line">   alert(<span class="number">1</span>);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-</li>
-</ol>
-<p>上面示例中定义的函数仅作为值赋值给变量f，所以在预编译期，JavaScript解释器只能够为声明变量f进行处理，而对于变量f的值，只能等到执行期时按顺序进行赋值，自然就会出现语法错误，提示找不到对象f。</p>
-<p>JavaScript解释器在执行脚本时，是按块来执行的。通俗地说，就是浏览器在解析HTML文档流时，如果遇到一个script标签，则JavaScript解释器会等到这个代码块都加载完后，先对代码块进行预编译，然后再执行。执行完毕后，浏览器会继续解析下面的HTML文档流，同时JavaScript解释器也准备好处理下一个代码块。由于JavaScript是按块执行的，所以如果在一个JavaScript块中调用后面块中声明的变量或函数就会提示语法错误。虽然说，JavaScript是按块执行的，但是不同块都属于同一个全局作用域，也就是说，块之间的变量和函数是可以共享的。</p>
-<p>备注：document.write()会把输出写入到脚本文档所在的位置，浏览器解析完documemt.write()所在文档内容后，继续解析document.write()输出的内容，然后在继续解析HTML文档。</p>
-<figure class="highlight html"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">document.write('<span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span> <span class="attr">src</span>=<span class="string">"test.js"</span>&gt;</span><span class="javascript">&lt;<span class="comment">//script&gt;');</span></span></div><div class="line"><span class="xml">document.write('<span class="tag">&lt;<span class="name">script</span> <span class="attr">type</span>=<span class="string">"text/javascript"</span>&gt;</span><span class="undefined">');   </span></span></div><div class="line"><span class="javascript"><span class="built_in">document</span>.write(<span class="string">'alert(2);'</span>)   </span></div><div class="line"><span class="javascript"><span class="built_in">document</span>.write(<span class="string">'alert("我是" + tmpStr);'</span>);   </span></div><div class="line"><span class="javascript"><span class="built_in">document</span>.write(<span class="string">'&lt;//script&gt;'</span>);    <span class="comment">//]]&gt;</span></span></div></pre></td></tr></table></figure>
-<p>IE下，用Document.Write方法引用js文件时，js文件会出现尚未加载就直接调用的情况，因此建议将引用的JS文件单独放在一个script块中。以确保引用的js文件完全加载后，再继续执行后面的Document.Write内容。在js里出现同名函数后，你在web页面里调用改js函数后，总是调用页面中最后一个加载的函数。</p>
-<h3 id="jQuery-DomReardy事件"><a href="#jQuery-DomReardy事件" class="headerlink" title="jQuery DomReardy事件"></a>jQuery DomReardy事件</h3><p>在Jquery里面，我们可以看到两种写法:$(function(){}) 和$(document).ready(function(){})<br>这两个方法的效果都是一样的，都是在dom文档树加载完之后执行一个函数（注意，这里面的文档树加载完不代表全部文件加载完）。<br>而window.onload是在dom文档树加载完和所有文件加载完之后执行一个函数。也就是说$(document).ready要比window.onload先执行。</p>
-<p>那么Jquery里面$(document).ready函数的实现：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">document</span>.ready = <span class="function"><span class="keyword">function</span> (<span class="params">callback</span>) </span>&#123;</div><div class="line">　　<span class="comment">//兼容FF,Google</span></div><div class="line"> 　<span class="keyword">if</span> (<span class="built_in">document</span>.addEventListener) &#123;</div><div class="line">   　　<span class="built_in">document</span>.addEventListener(<span class="string">'DOMContentLoaded'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">          <span class="built_in">document</span>.removeEventListener(<span class="string">'DOMContentLoaded'</span>, <span class="built_in">arguments</span>.callee, <span class="literal">false</span>);</div><div class="line">                callback();</div><div class="line">          &#125;, <span class="literal">false</span>)</div><div class="line">       &#125;</div><div class="line">   <span class="comment">//兼容IE</span></div><div class="line">   <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">document</span>.attachEvent) &#123;</div><div class="line">       <span class="built_in">document</span>.attachEvent(<span class="string">'onreadytstatechange'</span>, <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">           <span class="keyword">if</span> (<span class="built_in">document</span>.readyState == <span class="string">"complete"</span>) &#123;</div><div class="line">              <span class="built_in">document</span>.detachEvent(<span class="string">"onreadystatechange"</span>, <span class="built_in">arguments</span>.callee);</div><div class="line">                     callback();</div><div class="line">              &#125;</div><div class="line">           &#125;)</div><div class="line">       &#125;</div><div class="line">  <span class="keyword">else</span> <span class="keyword">if</span> (<span class="built_in">document</span>.lastChild == <span class="built_in">document</span>.body) &#123;</div><div class="line">          callback();</div><div class="line">       &#125;</div><div class="line">  &#125;</div><div class="line"></div><div class="line">  <span class="built_in">window</span>.onload = <span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">      alert(<span class="string">'onload'</span>);</div><div class="line">  &#125;;</div><div class="line">  <span class="built_in">document</span>.ready(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line">      alert(<span class="string">'ready'</span>);</div><div class="line">  &#125;);</div></pre></td></tr></table></figure>
-<p>转载自<a href="http://www.cnblogs.com/chenlogin/p/5221562.html" target="_blank" rel="external">http://www.cnblogs.com/chenlogin/p/5221562.html</a></p>
+          浏览器加载和渲染html的顺序
+IE下载的顺序是从上到下，渲染的顺序也是从上到下，下载和渲染是同时进行
+在渲染到页面的某一部分时，其上面的所有部分都已经下载完成（并不是说所有相关联的元素都已经下载完）
+如果遇到语义解释性的标签嵌入文件（js脚本，css样式），那么此时IE的下载过程会启用单独连接进行下载
+并且在下载后进行解析，解析过程中，停止页面所有往下元素的下载，阻塞加载
+样式表在下载完成后，将和以前下载的所有样式表一起进行解析，解析完成后，将对此前所有元素（含以前已经渲染的）重新进行渲染
+JS、CSS中如有重定义，后定义函数将覆盖前定义函数
 
-          
+JS的加载
+浏览器对于Javascript的运行有两大特性：1）载入后马上执行，2）执行时会阻塞页面后续的内容（包括页面的渲染、其他资源的下载）。于是，如果有多个js文件被引入，那么对于浏览器来说，这些js文件被串行的载入，并依次执行。因为JavaScript可能会操作HMTL文档的DOM树，所以，浏览器一般都不会像并行下载css文件那样并行下载js文件，因此这是js文件的特殊性造成的。所以，如果你的JavaScript想操作后面的DOM元素
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/08/23/浏览器渲染机制-1/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -505,33 +471,24 @@
       
         
           
-            <p>作用域是指程序源代码中定义变量的区域。</p>
-<p>作用域规定了如何查找变量，也就是确定当前执行代码对变量的访问权限。</p>
-<p>JavaScript 采用词法作用域(lexical scoping)，也就是静态作用域。</p>
-<h3 id="静态作用域与动态作用域"><a href="#静态作用域与动态作用域" class="headerlink" title="静态作用域与动态作用域"></a>静态作用域与动态作用域</h3><p>因为 JavaScript 采用的是词法作用域，函数的作用域在函数定义的时候就决定了。</p>
-<p>而与词法作用域相对的是动态作用域，函数的作用域是在函数调用的时候才决定的。</p>
-<p>让我们认真看个例子就能明白之间的区别：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> value = <span class="number">1</span>;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="built_in">console</span>.log(value);</div><div class="line">&#125;</div><div class="line"></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span>(<span class="params"></span>) </span>&#123;</div><div class="line">    <span class="keyword">var</span> value = <span class="number">2</span>;</div><div class="line">    foo();</div><div class="line">&#125;</div><div class="line"></div><div class="line">bar();</div><div class="line"></div><div class="line"><span class="comment">// 结果是 ???</span></div></pre></td></tr></table></figure>
-<p>假设JavaScript采用静态作用域，让我们分析下执行过程：</p>
-<p>执行 foo 函数，先从 foo 函数内部查找是否有局部变量 value，如果没有，就根据书写的位置，查找上面一层的代码，也就是 value 等于 1，所以结果会打印 1。</p>
-<p>假设JavaScript采用动态作用域，让我们分析下执行过程：</p>
-<p>执行 foo 函数，依然是从 foo 函数内部查找是否有局部变量 value。如果没有，就从调用函数的作用域，也就是 bar 函数内部查找 value 变量，所以结果会打印 2。</p>
-<p>前面我们已经说了，JavaScript采用的是静态作用域，所以这个例子的结果是 1。</p>
-<h3 id="动态作用域"><a href="#动态作用域" class="headerlink" title="动态作用域"></a>动态作用域</h3><p>也许你会好奇什么语言是动态作用域？</p>
-<p>bash 就是动态作用域，不信的话，把下面的脚本存成例如 scope.bash，然后进入相应的目录，用命令行执行 bash ./scope.bash，看看打印的值是多少。</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">value=<span class="number">1</span></div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">foo</span> (<span class="params"></span>) </span>&#123;</div><div class="line">    echo $value;</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">bar</span> (<span class="params"></span>) </span>&#123;</div><div class="line">    local value=<span class="number">2</span>;</div><div class="line">    foo;</div><div class="line">&#125;</div><div class="line">bar</div></pre></td></tr></table></figure>
-<p>这个文件也可以在github博客仓库中找到。</p>
-<p>思考题</p>
-<p>最后，让我们看一个《JavaScript权威指南》中的例子：</p>
-<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> scope = <span class="string">"global scope"</span>;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkscope</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> scope = <span class="string">"local scope"</span>;</div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="keyword">return</span> scope;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> f();</div><div class="line">&#125;</div><div class="line">checkscope();</div><div class="line"><span class="keyword">var</span> scope = <span class="string">"global scope"</span>;</div><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">checkscope</span>(<span class="params"></span>)</span>&#123;</div><div class="line">    <span class="keyword">var</span> scope = <span class="string">"local scope"</span>;</div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">f</span>(<span class="params"></span>)</span>&#123;</div><div class="line">        <span class="keyword">return</span> scope;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> f;</div><div class="line">&#125;</div><div class="line">checkscope()();</div></pre></td></tr></table></figure>
-<p>猜猜两段代码各自的执行结果是多少？</p>
-<p>这里直接告诉大家结果，两段代码都会打印：local scope。</p>
-<p>原因也很简单，因为JavaScript采用的是词法作用域，函数的作用域基于函数创建的位置。</p>
-<p>而引用《JavaScript权威指南》的回答就是：</p>
-<p>JavaScript 函数的执行用到了作用域链，这个作用域链是在函数定义的时候创建的。嵌套的函数 f() 定义在这个作用域链里，其中的变量 scope 一定是局部变量，不管何时何地执行函数 f()，这种绑定在执行 f() 时依然有效。</p>
-<p>转载自<a href="https://github.com/mqyqingfeng/Blog/issues/3" target="_blank" rel="external">https://github.com/mqyqingfeng/Blog/issues/3</a></p>
-
-          
+          作用域是指程序源代码中定义变量的区域。
+作用域规定了如何查找变量，也就是确定当前执行代码对变量的访问权限。
+JavaScript 采用词法作用域(lexical scoping)，也就是静态作用域。
+静态作用域与动态作用域因为 JavaScript 采用的是词法作用域，函数的作用域在函数定义的时候就决定了。
+而与词法作用域相对的是动态作用域，函数的作用域是在函数调用的时候才决定的。
+让我们认真看个例子就能明白之间的区别：
+1234567891011121314var value = 1;function foo() &#123;    console.log(value);&#125;function bar() &#123;    var value = 2;    foo();&#125;bar();// 结果是 ???
+假设JavaScript采用静态作用域，让我们分析下执行过程：
+执行 foo 函数，先从 foo 函数内部查找是否有局部变量 value，如果没有，就根据书写的位置，查找上面一层的代码，也就是 value 等于 1，所以结果会打印 1。
+假设JavaScript采
+          ...
+          <!--noindex-->
+          <div class="post-button text-center">
+            <a class="btn" href="/2017/08/21/javascript-作用域/#more" rel="contents">
+              阅读全文 &raquo;
+            </a>
+          </div>
+          <!--/noindex-->
         
       
     </div>
@@ -723,6 +680,8 @@
   
 
 
+  
+
 
 
 
@@ -750,6 +709,9 @@
 
   
   <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+  
+  <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
 
 
   
