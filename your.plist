@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+   <key>items</key>
+   <array>
+       <dict>
+           <key>assets</key>
+           <array>
+              <dict>
+                  <key>kind</key>
+                  <string>software-package</string>
+                   <key>url</key>
+                  <string>https://o2qgh4kcb.qnssl.com/ios/615_xybtb.ipa</string>
+              </dict>
+               <dict>
+                 <key>kind</key>
+                 <string>display-image</string>
+                 <key>needs-shine</key>
+                <true/>
+                <key>url</key>
+                <string>https://o2qgh4kcb.qnssl.com/ios/615_xybtb.ipa<span style="font-family: Arial, Helvetica, sans-serif;">https://o2qgh4kcb.qnssl.com/111.png</span></string>
+             </dict>
+           <dict>
+                  <key>kind</key>
+                  <string>full-size-image</string>
+                  <key>needs-shine</key>
+                  <true/>
+                   <key>url</key>
+                   <string>https://o2qgh4kcb.qnssl.com/111.png</string>
+               </dict>
+           </array><key>metadata</key>
+           <dict>
+               <key>bundle-identifier</key>
+               <string>com.19meng.appstore.hjxx.at0407</string>
+               <key>bundle-version</key>
+               <string>0.22.1</string>
+               <key>kind</key>
+               <string>software</string>
+               <key>subtitle</key>
+               <string>西游变态版</string>
+               <key>title</key>
+               <string>西游变态版</string>
+           </dict>
+       </dict>
+   </array>
+</dict>
+</plist>
